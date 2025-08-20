@@ -2,11 +2,12 @@ import { NavLink } from "react-router-dom";
 import ApperIcon from "@/components/ApperIcon";
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const navItems = [
+const navItems = [
     { to: "/", label: "Dashboard", icon: "LayoutDashboard" },
     { to: "/schedule", label: "Class Schedule", icon: "Calendar" },
     { to: "/workouts", label: "My Workouts", icon: "Dumbbell" },
     { to: "/trainer-booking", label: "Book Trainer", icon: "UserCheck" },
+    { to: "/notifications", label: "Notifications", icon: "Bell", badge: 3 },
     { to: "/profile", label: "Profile & Settings", icon: "Settings" }
   ];
 
@@ -27,20 +28,27 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         <nav className="flex-1 p-4">
-          <ul className="space-y-2">
+<ul className="space-y-2">
             {navItems.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
                       isActive
                         ? "bg-gradient-primary text-white shadow-lg"
                         : "text-gray-700 hover:bg-gray-100"
                     }`
                   }
                 >
-                  <ApperIcon name={item.icon} className="h-5 w-5" />
+                  <div className="relative">
+                    <ApperIcon name={item.icon} className="h-5 w-5" />
+                    {item.badge && item.badge > 0 && (
+                      <span className="notification-badge">
+                        {item.badge > 9 ? '9+' : item.badge}
+                      </span>
+                    )}
+                  </div>
                   <span className="font-medium">{item.label}</span>
                 </NavLink>
               </li>
@@ -87,21 +95,28 @@ const Sidebar = ({ isOpen, onClose }) => {
             </div>
 
             <nav className="flex-1 p-4">
-              <ul className="space-y-2">
+<ul className="space-y-2">
                 {navItems.map((item) => (
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
                       onClick={onClose}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative ${
                           isActive
                             ? "bg-gradient-primary text-white shadow-lg"
                             : "text-gray-700 hover:bg-gray-100"
                         }`
                       }
                     >
-                      <ApperIcon name={item.icon} className="h-5 w-5" />
+                      <div className="relative">
+                        <ApperIcon name={item.icon} className="h-5 w-5" />
+                        {item.badge && item.badge > 0 && (
+                          <span className="notification-badge">
+                            {item.badge > 9 ? '9+' : item.badge}
+                          </span>
+                        )}
+                      </div>
                       <span className="font-medium">{item.label}</span>
                     </NavLink>
                   </li>

@@ -63,13 +63,44 @@ const SchedulePage = () => {
     setFilteredClasses(filtered);
   };
 
-  const handleBookClass = async (classId) => {
+const handleBookClass = async (classId) => {
     try {
       await classService.bookClass(classId, 1); // Using member ID 1
-      toast.success("Class booked successfully! 🎉");
+      
+      // Enhanced notification with sound and visual feedback
+      toast.success("🎉 Class booked successfully!", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        className: "font-medium",
+        bodyClassName: "text-white",
+        progressClassName: "bg-white/30"
+      });
+
+      // Play notification sound if enabled (would check user preferences)
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTOT3PO+bi4FL43v8+OUQgwXZ6rk8N2QQAoUXrTp66hVFApGn+DyvmwhBTOT3PO+bi4FL43v8+OUQgwX');
+        audio.volume = 0.3;
+        audio.play().catch(() => {}); // Ignore errors if sound fails
+      } catch (e) {
+        // Silent fail for sound
+      }
+
       loadClasses();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(`❌ ${error.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        className: "font-medium",
+        bodyClassName: "text-white"
+      });
     }
   };
 
