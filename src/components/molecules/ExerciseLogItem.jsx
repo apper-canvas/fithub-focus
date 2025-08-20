@@ -1,13 +1,15 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import Button from "@/components/atoms/Button";
-import Input from "@/components/atoms/Input";
-import Badge from "@/components/atoms/Badge";
+import AIModificationPanel from "@/components/organisms/AIModificationPanel";
 import ApperIcon from "@/components/ApperIcon";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 
 const ExerciseLogItem = ({ exercise, onLogSet, completedSets = [] }) => {
   const [sets, setSets] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
+  const [showAIAlternatives, setShowAIAlternatives] = useState(false);
 
   const addSet = () => {
     const newSet = {
@@ -84,8 +86,27 @@ const ExerciseLogItem = ({ exercise, onLogSet, completedSets = [] }) => {
         >
           {showDetails ? "Hide" : "Details"}
         </Button>
+</div>
+
+      {/* AI Alternatives Button */}
+      <div className="mt-4 pt-4 border-t">
+        <Button
+          onClick={() => setShowAIAlternatives(!showAIAlternatives)}
+          variant="outline"
+          size="sm"
+          className="w-full"
+        >
+          <ApperIcon name="Brain" size={14} />
+          {showAIAlternatives ? 'Hide' : 'Show'} AI Alternatives
+        </Button>
       </div>
 
+{/* AI Modification Panel */}
+      {showAIAlternatives && (
+        <AIModificationPanel exercise={exercise} />
+      )}
+
+      {/* Exercise Details */}
       <motion.div
         initial={false}
         animate={{ height: showDetails ? "auto" : 0, opacity: showDetails ? 1 : 0 }}
