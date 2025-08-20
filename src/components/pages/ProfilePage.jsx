@@ -866,27 +866,27 @@ const handleInputChange = (field, value) => {
             </h3>
             
             <div className="space-y-3">
-              <Button
+<Button
                 variant="outline"
                 className="w-full justify-start"
                 icon="Bell"
-                onClick={() => toast.info("Notification settings coming soon!")}
+                onClick={() => window.location.href = '/notification-settings'}
               >
                 Notification Settings
               </Button>
-              <Button
+<Button
                 variant="outline"
                 className="w-full justify-start"
                 icon="Shield"
-                onClick={() => toast.info("Privacy settings coming soon!")}
+                onClick={() => window.location.href = '/privacy-settings'}
               >
                 Privacy Settings
               </Button>
-              <Button
+<Button
                 variant="outline"
                 className="w-full justify-start"
                 icon="HelpCircle"
-                onClick={() => window.open("mailto:support@fithubpro.com", "_blank")}
+                onClick={() => window.location.href = '/help-support'}
               >
                 Help & Support
               </Button>
