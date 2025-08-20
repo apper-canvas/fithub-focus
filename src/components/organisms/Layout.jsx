@@ -14,7 +14,7 @@ const Layout = () => {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
-      <div className="lg:ml-64">
+<div className="lg:pl-64">
         {/* Header */}
         <Header />
 
