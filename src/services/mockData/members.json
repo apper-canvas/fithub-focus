@@ -17,9 +17,71 @@
     "fitnessGoal": "Weight Loss & Muscle Building",
     "preferredWorkoutTime": "Morning",
     "medicalConditions": "None",
-    "streak": 12,
+"streak": 12,
     "totalWorkouts": 89,
     "monthlyVisits": 18,
-    "favoriteClasses": ["HIIT", "Yoga", "Strength Training"]
+    "favoriteClasses": ["HIIT", "Yoga", "Strength Training"],
+    "bodyMetrics": [
+      {
+        "Id": 1,
+        "date": "2024-01-01",
+        "weight": 85.2,
+        "bodyFatPercentage": 18.5,
+        "muscleMass": 42.1,
+        "visceralFat": 9,
+        "waterPercentage": 62.3,
+        "createdAt": "2024-01-01T10:00:00Z"
+      },
+      {
+        "Id": 2,
+        "date": "2024-01-15",
+        "weight": 84.1,
+        "bodyFatPercentage": 17.8,
+        "muscleMass": 42.8,
+        "visceralFat": 8,
+        "waterPercentage": 63.1,
+        "createdAt": "2024-01-15T10:00:00Z"
+      },
+      {
+        "Id": 3,
+        "date": "2024-02-01",
+        "weight": 83.5,
+        "bodyFatPercentage": 17.2,
+        "muscleMass": 43.2,
+        "visceralFat": 8,
+        "waterPercentage": 63.8,
+        "createdAt": "2024-02-01T10:00:00Z"
+      },
+      {
+        "Id": 4,
+        "date": "2024-02-15",
+        "weight": 82.8,
+        "bodyFatPercentage": 16.9,
+        "muscleMass": 43.6,
+        "visceralFat": 7,
+        "waterPercentage": 64.2,
+        "createdAt": "2024-02-15T10:00:00Z"
+      },
+      {
+        "Id": 5,
+        "date": "2024-03-01",
+        "weight": 82.3,
+        "bodyFatPercentage": 16.4,
+        "muscleMass": 44.1,
+        "visceralFat": 7,
+        "waterPercentage": 64.7,
+        "createdAt": "2024-03-01T10:00:00Z"
+      },
+      {
+        "Id": 6,
+        "date": "2024-03-15",
+        "weight": 82.0,
+        "bodyFatPercentage": 16.1,
+        "muscleMass": 44.5,
+        "visceralFat": 6,
+        "waterPercentage": 65.1,
+        "createdAt": "2024-03-15T10:00:00Z"
+      }
+    ]
   }
 ]

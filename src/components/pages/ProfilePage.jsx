@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Chart from "react-apexcharts";
 import Card from "@/components/atoms/Card";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
@@ -11,15 +12,26 @@ import ApperIcon from "@/components/ApperIcon";
 import memberService from "@/services/api/memberService";
 
 const ProfilePage = () => {
-  const [member, setMember] = useState(null);
+const [member, setMember] = useState(null);
   const [memberStats, setMemberStats] = useState(null);
+  const [bodyMetrics, setBodyMetrics] = useState([]);
   const [editMode, setEditMode] = useState(false);
+  const [showMetricsForm, setShowMetricsForm] = useState(false);
   const [formData, setFormData] = useState({});
+  const [metricsFormData, setMetricsFormData] = useState({
+    weight: '',
+    bodyFatPercentage: '',
+    muscleMass: '',
+    visceralFat: '',
+    waterPercentage: '',
+    date: new Date().toISOString().split('T')[0]
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingMetrics, setSavingMetrics] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
     loadProfileData();
   }, []);
 
@@ -28,13 +40,15 @@ const ProfilePage = () => {
       setLoading(true);
       setError("");
       
-      const [memberData, statsData] = await Promise.all([
+      const [memberData, statsData, metricsData] = await Promise.all([
         memberService.getCurrentMember(),
-        memberService.getMemberStats(1)
+        memberService.getMemberStats(1),
+        memberService.getBodyMetrics(1)
       ]);
       
       setMember(memberData);
       setMemberStats(statsData);
+      setBodyMetrics(metricsData);
       setFormData(memberData);
     } catch (err) {
       setError("Failed to load profile data. Please try again.");
@@ -44,8 +58,15 @@ const ProfilePage = () => {
     }
   };
 
-  const handleInputChange = (field, value) => {
+const handleInputChange = (field, value) => {
     setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleMetricsInputChange = (field, value) => {
+    setMetricsFormData(prev => ({
       ...prev,
       [field]: value
     }));
@@ -68,9 +89,63 @@ const ProfilePage = () => {
     }
   };
 
+  const handleSaveMetrics = async () => {
+    try {
+      // Validate required fields
+      if (!metricsFormData.weight) {
+        toast.error("Weight is required");
+        return;
+      }
+
+      setSavingMetrics(true);
+      
+      const newMetric = await memberService.addBodyMetric(member.Id, {
+        weight: parseFloat(metricsFormData.weight),
+        bodyFatPercentage: metricsFormData.bodyFatPercentage ? parseFloat(metricsFormData.bodyFatPercentage) : null,
+        muscleMass: metricsFormData.muscleMass ? parseFloat(metricsFormData.muscleMass) : null,
+        visceralFat: metricsFormData.visceralFat ? parseFloat(metricsFormData.visceralFat) : null,
+        waterPercentage: metricsFormData.waterPercentage ? parseFloat(metricsFormData.waterPercentage) : null,
+        date: metricsFormData.date
+      });
+
+      // Update the metrics list
+      setBodyMetrics(prev => [...prev, newMetric]);
+      
+      // Reset form
+      setMetricsFormData({
+        weight: '',
+        bodyFatPercentage: '',
+        muscleMass: '',
+        visceralFat: '',
+        waterPercentage: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+      setShowMetricsForm(false);
+      
+      toast.success("Body metrics saved successfully! 📊");
+    } catch (error) {
+      toast.error("Failed to save metrics. Please try again.");
+      console.error("Metrics save error:", error);
+    } finally {
+      setSavingMetrics(false);
+    }
+  };
+
   const handleCancelEdit = () => {
     setFormData(member);
     setEditMode(false);
+  };
+
+  const handleCancelMetrics = () => {
+    setMetricsFormData({
+      weight: '',
+      bodyFatPercentage: '',
+      muscleMass: '',
+      visceralFat: '',
+      waterPercentage: '',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setShowMetricsForm(false);
   };
 
   const getMembershipColor = () => {
@@ -99,6 +174,87 @@ const ProfilePage = () => {
     const diffTime = expiry - today;
     
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const getChartData = () => {
+    const sortedMetrics = [...bodyMetrics].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    return {
+      weight: {
+        series: [{
+          name: 'Weight (kg)',
+          data: sortedMetrics.map(m => ({ x: m.date, y: m.weight }))
+        }],
+        options: {
+          chart: { type: 'line', height: 300, toolbar: { show: false } },
+          colors: ['#FF6B35'],
+          stroke: { curve: 'smooth', width: 3 },
+          xaxis: { type: 'datetime', labels: { style: { fontSize: '12px' } } },
+          yaxis: { labels: { style: { fontSize: '12px' } } },
+          grid: { borderColor: '#f1f5f9' },
+          tooltip: { theme: 'light' }
+        }
+      },
+      bodyFat: {
+        series: [{
+          name: 'Body Fat %',
+          data: sortedMetrics.filter(m => m.bodyFatPercentage).map(m => ({ x: m.date, y: m.bodyFatPercentage }))
+        }],
+        options: {
+          chart: { type: 'line', height: 300, toolbar: { show: false } },
+          colors: ['#00D9FF'],
+          stroke: { curve: 'smooth', width: 3 },
+          xaxis: { type: 'datetime', labels: { style: { fontSize: '12px' } } },
+          yaxis: { labels: { style: { fontSize: '12px' } } },
+          grid: { borderColor: '#f1f5f9' },
+          tooltip: { theme: 'light' }
+        }
+      },
+      composition: {
+        series: [
+          {
+            name: 'Muscle Mass (kg)',
+            data: sortedMetrics.filter(m => m.muscleMass).map(m => ({ x: m.date, y: m.muscleMass }))
+          },
+          {
+            name: 'Water %',
+            data: sortedMetrics.filter(m => m.waterPercentage).map(m => ({ x: m.date, y: m.waterPercentage }))
+          }
+        ],
+        options: {
+          chart: { type: 'line', height: 300, toolbar: { show: false } },
+          colors: ['#00C853', '#2196F3'],
+          stroke: { curve: 'smooth', width: 3 },
+          xaxis: { type: 'datetime', labels: { style: { fontSize: '12px' } } },
+          yaxis: { labels: { style: { fontSize: '12px' } } },
+          grid: { borderColor: '#f1f5f9' },
+          tooltip: { theme: 'light' },
+          legend: { position: 'top' }
+        }
+      }
+    };
+  };
+
+  const getCurrentMetrics = () => {
+    if (bodyMetrics.length === 0) return null;
+    
+    const latest = [...bodyMetrics].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    const previous = bodyMetrics.length > 1 ? [...bodyMetrics].sort((a, b) => new Date(b.date) - new Date(a.date))[1] : null;
+    
+    const getChange = (current, prev) => {
+      if (!prev || !current) return null;
+      const change = current - prev;
+      return { value: Math.abs(change), isIncrease: change > 0 };
+    };
+
+    return {
+      current: latest,
+      changes: {
+        weight: getChange(latest.weight, previous?.weight),
+        bodyFat: getChange(latest.bodyFatPercentage, previous?.bodyFatPercentage),
+        muscleMass: getChange(latest.muscleMass, previous?.muscleMass)
+      }
+    };
   };
 
   if (loading) return <Loading message="Loading your profile..." />;
@@ -317,8 +473,7 @@ const ProfilePage = () => {
               </div>
             </div>
           </Card>
-
-          {/* Favorite Classes */}
+{/* Favorite Classes */}
           <Card>
             <h2 className="text-xl font-display font-bold text-gray-900 mb-4 flex items-center gap-2">
               <ApperIcon name="Heart" className="h-6 w-6 text-primary" />
@@ -331,6 +486,275 @@ const ProfilePage = () => {
                 </Badge>
               ))}
             </div>
+          </Card>
+
+          {/* Body Metrics Tracking */}
+          <Card>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-display font-bold text-gray-900 flex items-center gap-2">
+                <ApperIcon name="Activity" className="h-6 w-6 text-primary" />
+                Body Metrics
+              </h2>
+              <Button
+                onClick={() => setShowMetricsForm(!showMetricsForm)}
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ApperIcon name="Plus" className="h-4 w-4" />
+                Add Metrics
+              </Button>
+            </div>
+
+            {/* Current Metrics Summary */}
+            {getCurrentMetrics() && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {getCurrentMetrics().current.weight && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-blue-700 font-medium">Current Weight</p>
+                        <p className="text-2xl font-display font-bold text-blue-900">
+                          {getCurrentMetrics().current.weight} kg
+                        </p>
+                        {getCurrentMetrics().changes.weight && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <ApperIcon 
+                              name={getCurrentMetrics().changes.weight.isIncrease ? "TrendingUp" : "TrendingDown"}
+                              className={`h-3 w-3 ${getCurrentMetrics().changes.weight.isIncrease ? "text-red-600" : "text-green-600"}`}
+                            />
+                            <span className={`text-xs font-medium ${getCurrentMetrics().changes.weight.isIncrease ? "text-red-600" : "text-green-600"}`}>
+                              {getCurrentMetrics().changes.weight.value.toFixed(1)} kg
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <ApperIcon name="Weight" className="h-8 w-8 text-blue-600" />
+                    </div>
+                  </div>
+                )}
+
+                {getCurrentMetrics().current.bodyFatPercentage && (
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-orange-700 font-medium">Body Fat</p>
+                        <p className="text-2xl font-display font-bold text-orange-900">
+                          {getCurrentMetrics().current.bodyFatPercentage}%
+                        </p>
+                        {getCurrentMetrics().changes.bodyFat && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <ApperIcon 
+                              name={getCurrentMetrics().changes.bodyFat.isIncrease ? "TrendingUp" : "TrendingDown"}
+                              className={`h-3 w-3 ${getCurrentMetrics().changes.bodyFat.isIncrease ? "text-red-600" : "text-green-600"}`}
+                            />
+                            <span className={`text-xs font-medium ${getCurrentMetrics().changes.bodyFat.isIncrease ? "text-red-600" : "text-green-600"}`}>
+                              {getCurrentMetrics().changes.bodyFat.value.toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <ApperIcon name="Percent" className="h-8 w-8 text-orange-600" />
+                    </div>
+                  </div>
+                )}
+
+                {getCurrentMetrics().current.muscleMass && (
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-green-700 font-medium">Muscle Mass</p>
+                        <p className="text-2xl font-display font-bold text-green-900">
+                          {getCurrentMetrics().current.muscleMass} kg
+                        </p>
+                        {getCurrentMetrics().changes.muscleMass && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <ApperIcon 
+                              name={getCurrentMetrics().changes.muscleMass.isIncrease ? "TrendingUp" : "TrendingDown"}
+                              className={`h-3 w-3 ${getCurrentMetrics().changes.muscleMass.isIncrease ? "text-green-600" : "text-red-600"}`}
+                            />
+                            <span className={`text-xs font-medium ${getCurrentMetrics().changes.muscleMass.isIncrease ? "text-green-600" : "text-red-600"}`}>
+                              {getCurrentMetrics().changes.muscleMass.value.toFixed(1)} kg
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <ApperIcon name="Zap" className="h-8 w-8 text-green-600" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Add Metrics Form */}
+            {showMetricsForm && (
+              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                <h3 className="font-display font-bold text-gray-900 mb-4">Add New Metrics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Weight (kg) *
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={metricsFormData.weight}
+                      onChange={(e) => handleMetricsInputChange('weight', e.target.value)}
+                      placeholder="e.g. 75.5"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Body Fat Percentage (%)
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={metricsFormData.bodyFatPercentage}
+                      onChange={(e) => handleMetricsInputChange('bodyFatPercentage', e.target.value)}
+                      placeholder="e.g. 15.2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Muscle Mass (kg)
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={metricsFormData.muscleMass}
+                      onChange={(e) => handleMetricsInputChange('muscleMass', e.target.value)}
+                      placeholder="e.g. 45.8"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Visceral Fat Level
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={metricsFormData.visceralFat}
+                      onChange={(e) => handleMetricsInputChange('visceralFat', e.target.value)}
+                      placeholder="e.g. 8"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Water Percentage (%)
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={metricsFormData.waterPercentage}
+                      onChange={(e) => handleMetricsInputChange('waterPercentage', e.target.value)}
+                      placeholder="e.g. 65.5"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={metricsFormData.date}
+                      onChange={(e) => handleMetricsInputChange('date', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleSaveMetrics}
+                    disabled={savingMetrics}
+                    className="flex items-center gap-2"
+                  >
+                    {savingMetrics ? (
+                      <>
+                        <ApperIcon name="Loader2" className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <ApperIcon name="Save" className="h-4 w-4" />
+                        Save Metrics
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelMetrics}
+                    disabled={savingMetrics}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Charts */}
+            {bodyMetrics.length > 0 ? (
+              <div className="space-y-6">
+                {/* Weight Chart */}
+                {getChartData().weight.series[0].data.length > 0 && (
+                  <div>
+                    <h3 className="font-display font-bold text-gray-900 mb-3">Weight Progress</h3>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <Chart
+                        options={getChartData().weight.options}
+                        series={getChartData().weight.series}
+                        type="line"
+                        height={300}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Body Fat Chart */}
+                {getChartData().bodyFat.series[0].data.length > 0 && (
+                  <div>
+                    <h3 className="font-display font-bold text-gray-900 mb-3">Body Fat Progress</h3>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <Chart
+                        options={getChartData().bodyFat.options}
+                        series={getChartData().bodyFat.series}
+                        type="line"
+                        height={300}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Body Composition Chart */}
+                {(getChartData().composition.series[0].data.length > 0 || getChartData().composition.series[1].data.length > 0) && (
+                  <div>
+                    <h3 className="font-display font-bold text-gray-900 mb-3">Body Composition</h3>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <Chart
+                        options={getChartData().composition.options}
+                        series={getChartData().composition.series}
+                        type="line"
+                        height={300}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <ApperIcon name="BarChart3" className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 mb-4">No metrics data yet</p>
+                <p className="text-sm text-gray-500">
+                  Start tracking your progress by adding your first body metrics above
+                </p>
+              </div>
+            )}
           </Card>
         </div>
 
