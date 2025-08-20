@@ -1,0 +1,25 @@
+[
+  {
+    "Id": 1,
+    "name": "Alex Johnson",
+    "email": "alex@example.com",
+    "membershipType": "Premium",
+    "membershipPlan": "Annual Premium",
+    "joinDate": "2023-01-15",
+    "expiryDate": "2024-12-31",
+    "status": "Active",
+    "qrCode": "QR123456789",
+    "phone": "+1-555-0123",
+    "emergencyContact": "Jane Johnson - +1-555-0124",
+    "goalWeight": 75,
+    "currentWeight": 82,
+    "height": 175,
+    "fitnessGoal": "Weight Loss & Muscle Building",
+    "preferredWorkoutTime": "Morning",
+    "medicalConditions": "None",
+    "streak": 12,
+    "totalWorkouts": 89,
+    "monthlyVisits": 18,
+    "favoriteClasses": ["HIIT", "Yoga", "Strength Training"]
+  }
+]

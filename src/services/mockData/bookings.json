@@ -1,0 +1,33 @@
+[
+  {
+    "Id": 1,
+    "memberId": 1,
+    "type": "class",
+    "classId": 1,
+    "datetime": "2024-01-15T07:00:00",
+    "status": "confirmed",
+    "bookingDate": "2024-01-12T10:30:00",
+    "checkedIn": false
+  },
+  {
+    "Id": 2,
+    "memberId": 1,
+    "type": "trainer",
+    "trainerSlotId": 3,
+    "datetime": "2024-01-15T14:00:00",
+    "status": "confirmed",
+    "bookingDate": "2024-01-13T15:20:00",
+    "checkedIn": false,
+    "notes": "Focus on flexibility and core strength"
+  },
+  {
+    "Id": 3,
+    "memberId": 1,
+    "type": "class",
+    "classId": 6,
+    "datetime": "2024-01-16T17:00:00",
+    "status": "confirmed",
+    "bookingDate": "2024-01-14T09:15:00",
+    "checkedIn": false
+  }
+]
