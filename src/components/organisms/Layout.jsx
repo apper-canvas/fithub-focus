@@ -9,12 +9,14 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+<div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+<div className="flex-shrink-0">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      </div>
 
       {/* Main Content */}
-<div className="lg:pl-64">
+<div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <Header />
 
