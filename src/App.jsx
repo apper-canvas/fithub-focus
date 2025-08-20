@@ -15,20 +15,21 @@ import Layout from "@/components/organisms/Layout";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-<Routes>
-<Route index element={<HomePage />} />
-<Route path="schedule" element={<SchedulePage />} />
-<Route path="workouts" element={<WorkoutsPage />} />
-<Route path="trainer-booking" element={<TrainerBookingPage />} />
-<Route path="water-tracker" element={<WaterIntakeTrackerPage />} />
-<Route path="profile" element={<ProfilePage />} />
-<Route path="notification-settings" element={<NotificationSettingsPage />} />
-<Route path="privacy-settings" element={<PrivacySettingsPage />} />
-<Route path="help-support" element={<HelpSupportPage />} />
-</Routes>
-        <ToastContainer
+<BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route index element={<HomePage />} />
+          <Route path="schedule" element={<SchedulePage />} />
+          <Route path="workouts" element={<WorkoutsPage />} />
+          <Route path="trainer-booking" element={<TrainerBookingPage />} />
+          <Route path="water-tracker" element={<WaterIntakeTrackerPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="notification-settings" element={<NotificationSettingsPage />} />
+          <Route path="privacy-settings" element={<PrivacySettingsPage />} />
+          <Route path="help-support" element={<HelpSupportPage />} />
+        </Routes>
+      </Layout>
+<ToastContainer
           position="top-right"
           autoClose={3000}
           hideProgressBar={false}
@@ -41,7 +42,6 @@ function App() {
           className="toast-container"
           style={{ zIndex: 9999 }}
         />
-      </div>
     </BrowserRouter>
   );
 }
