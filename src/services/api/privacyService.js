@@ -184,18 +184,30 @@ class PrivacyService {
     }
   }
 
+/**
+   * Retrieves data usage summary for the current user
+   * @returns {Promise<Object>} Data usage summary with sizes and timestamps
+   * @throws {Error} When unable to retrieve data usage information
+   */
   async getDataUsageSummary() {
     try {
-      // Mock data usage summary
-      return {
+      // Mock data usage summary - replace with actual API call
+      const summary = {
         profileData: { size: '2.3 KB', lastUpdated: '2024-01-15' },
         workoutData: { size: '156.7 KB', lastUpdated: '2024-01-20' },
         mediaFiles: { size: '45.2 MB', lastUpdated: '2024-01-18' },
         totalSize: '45.4 MB'
       };
+      
+      // Validate return data structure
+      if (!summary || typeof summary !== 'object') {
+        throw new Error('Invalid data usage summary format');
+      }
+      
+      return summary;
     } catch (error) {
-      console.error('Error getting data usage summary:', error);
-      throw new Error('Failed to get data usage summary');
+      console.error('Error getting data usage summary:', error?.message || error);
+      throw new Error(`Failed to get data usage summary: ${error?.message || 'Unknown error'}`);
     }
   }
 
