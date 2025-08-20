@@ -13,7 +13,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Desktop Sidebar */}
-<aside className="hidden lg:flex lg:flex-col lg:w-64 lg:bg-white lg:border-r lg:border-gray-200 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40">
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:bg-white lg:border-r lg:border-gray-200">
         <div className="flex items-center gap-3 p-6 border-b border-gray-200">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
             <ApperIcon name="Dumbbell" className="h-5 w-5 text-white" />
@@ -63,7 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       {/* Mobile Sidebar Overlay */}
       {isOpen && (
-<div className={`fixed inset-0 z-50 lg:hidden ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={onClose} />
           <aside className="fixed top-0 left-0 bottom-0 w-80 bg-white transform transition-transform duration-300">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">

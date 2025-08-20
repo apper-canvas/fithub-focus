@@ -1,5 +1,3 @@
-import React from "react";
-import Error from "@/components/ui/Error";
 import membersData from "@/services/mockData/members.json";
 
 let members = [...membersData];
@@ -127,63 +125,8 @@ const memberService = {
       throw new Error("Metric not found");
     }
 
-member.bodyMetrics.splice(metricIndex, 1);
+    member.bodyMetrics.splice(metricIndex, 1);
     return { success: true };
-  },
-
-  // Water intake tracking methods
-  async updateWaterIntake(glasses) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const member = members.find(m => m.Id === 1);
-    if (!member) {
-      throw new Error("Member not found");
-    }
-    
-    // Reset daily intake if it's a new day
-    const today = new Date().toDateString();
-    if (member.lastWaterUpdate !== today) {
-      member.dailyWaterIntake = 0;
-      member.lastWaterUpdate = today;
-    }
-    
-    member.dailyWaterIntake = Math.max(0, glasses);
-    return { ...member };
-  },
-
-  async updateWaterGoal(goal) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const member = members.find(m => m.Id === 1);
-    if (!member) {
-      throw new Error("Member not found");
-    }
-    
-    if (goal < 1 || goal > 20) {
-      throw new Error("Goal must be between 1 and 20 glasses");
-    }
-    
-    member.waterIntakeGoal = goal;
-    return { ...member };
-  },
-
-  async getWaterIntakeHistory() {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    // Generate mock weekly data
-    const history = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      
-      history.push({
-        date: date.toDateString(),
-        glasses: i === 0 ? (members[0]?.dailyWaterIntake || 0) : Math.floor(Math.random() * 10) + 2,
-        goal: members[0]?.waterIntakeGoal || 8
-      });
-    }
-    
-    return history;
   }
 };
 

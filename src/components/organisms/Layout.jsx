@@ -21,8 +21,7 @@ const Layout = () => {
         <Header />
 
         {/* Mobile Menu Button */}
-<button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+        <button
           onClick={() => setSidebarOpen(true)}
           className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-lg text-gray-700 hover:text-primary transition-colors"
         >
