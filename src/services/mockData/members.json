@@ -2,26 +2,65 @@
   {
     "Id": 1,
     "name": "Alex Johnson",
-    "email": "alex@example.com",
+    "email": "alex.johnson@email.com",
+    "phone": "+1 (555) 123-4567",
     "membershipType": "Premium",
-    "membershipPlan": "Annual Premium",
-    "joinDate": "2023-01-15",
-    "expiryDate": "2024-12-31",
-    "status": "Active",
-    "qrCode": "QR123456789",
-    "phone": "+1-555-0123",
-    "emergencyContact": "Jane Johnson - +1-555-0124",
-    "goalWeight": 75,
-    "currentWeight": 82,
-    "height": 175,
-    "fitnessGoal": "Weight Loss & Muscle Building",
-    "preferredWorkoutTime": "Morning",
-    "medicalConditions": "None",
-"streak": 12,
-    "totalWorkouts": 89,
-    "monthlyVisits": 18,
-    "favoriteClasses": ["HIIT", "Yoga", "Strength Training"],
-    "bodyMetrics": [
+    "membershipExpiry": "2024-12-31",
+    "memberSince": "2023-01-15",
+    "profileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    "waterIntakeGoal": 8,
+    "dailyWaterIntake": 3,
+    "lastWaterUpdate": "Mon Dec 23 2024",
+    "stats": {
+      "totalWorkouts": 156,
+      "totalCaloriesBurned": 47832,
+      "averageWorkoutTime": 65,
+      "currentStreak": 8,
+      "personalBests": {
+        "benchPress": 185,
+        "squat": 225,
+        "deadlift": 275,
+        "runTime5K": "22:30"
+      }
+    },
+    "preferences": {
+      "workoutReminders": true,
+      "classNotifications": true,
+      "emailUpdates": false,
+      "preferredWorkoutTime": "morning"
+    }
+},
+  {
+    "Id": 2,
+    "name": "Sarah Wilson",
+    "email": "sarah.wilson@email.com",
+    "phone": "+1 (555) 234-5678",
+    "membershipType": "Basic",
+    "membershipExpiry": "2024-11-30",
+    "memberSince": "2023-03-20",
+    "profileImage": "https://images.unsplash.com/photo-1494790108755-2616b612b13c?w=150&h=150&fit=crop&crop=face",
+    "waterIntakeGoal": 6,
+    "dailyWaterIntake": 2,
+    "lastWaterUpdate": "Mon Dec 23 2024",
+    "stats": {
+      "totalWorkouts": 89,
+      "totalCaloriesBurned": 23456,
+      "averageWorkoutTime": 45,
+      "currentStreak": 3,
+      "personalBests": {
+        "benchPress": 95,
+        "squat": 135,
+        "deadlift": 165,
+        "runTime5K": "28:15"
+      }
+    },
+    "preferences": {
+      "workoutReminders": true,
+      "classNotifications": false,
+      "emailUpdates": true,
+      "preferredWorkoutTime": "evening"
+    },
+    "bodyComposition": [
       {
         "Id": 1,
         "date": "2024-01-01",

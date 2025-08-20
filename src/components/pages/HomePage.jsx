@@ -5,6 +5,7 @@ import StatCard from "@/components/molecules/StatCard";
 import MembershipCard from "@/components/molecules/MembershipCard";
 import ClassCard from "@/components/molecules/ClassCard";
 import WorkoutCard from "@/components/molecules/WorkoutCard";
+import WaterIntakeWidget from "@/components/molecules/WaterIntakeWidget";
 import Button from "@/components/atoms/Button";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
@@ -258,6 +259,14 @@ const HomePage = () => {
               >
                 View Workout Plans
               </Button>
+<Button
+                variant="outline"
+                className="w-full justify-start"
+                icon="Droplets"
+                onClick={() => navigate("/water-tracker")}
+              >
+                Track Water Intake
+              </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start"
@@ -295,9 +304,12 @@ const HomePage = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+</div>
             </div>
           )}
+
+          {/* Water Intake Widget */}
+          <WaterIntakeWidget />
         </div>
       </div>
     </div>
