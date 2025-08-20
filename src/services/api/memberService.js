@@ -127,6 +127,67 @@ const memberService = {
 
     member.bodyMetrics.splice(metricIndex, 1);
     return { success: true };
+},
+
+  // Medical History Operations
+  getMedicalHistory: async (memberId) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const member = membersData.find(m => m.Id === memberId);
+    return member?.medicalHistory || [];
+  },
+
+  addMedicalHistory: async (memberId, medicalData) => {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const member = membersData.find(m => m.Id === memberId);
+    if (!member) throw new Error('Member not found');
+    
+    if (!member.medicalHistory) member.medicalHistory = [];
+    
+    const newEntry = {
+      Id: member.medicalHistory.length > 0 ? Math.max(...member.medicalHistory.map(h => h.Id)) + 1 : 1,
+      condition: medicalData.condition,
+      medication: medicalData.medication || '',
+      allergies: medicalData.allergies || '',
+      notes: medicalData.notes || '',
+      dateAdded: new Date().toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+    
+    member.medicalHistory.push(newEntry);
+    return newEntry;
+  },
+
+  updateMedicalHistory: async (memberId, entryId, medicalData) => {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const member = membersData.find(m => m.Id === memberId);
+    if (!member) throw new Error('Member not found');
+    
+    const entryIndex = member.medicalHistory?.findIndex(h => h.Id === entryId);
+    if (entryIndex === -1) throw new Error('Medical history entry not found');
+    
+    const updatedEntry = {
+      ...member.medicalHistory[entryIndex],
+      condition: medicalData.condition,
+      medication: medicalData.medication || '',
+      allergies: medicalData.allergies || '',
+      notes: medicalData.notes || '',
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+    
+    member.medicalHistory[entryIndex] = updatedEntry;
+    return updatedEntry;
+  },
+
+  deleteMedicalHistory: async (memberId, entryId) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const member = membersData.find(m => m.Id === memberId);
+    if (!member) throw new Error('Member not found');
+    
+    const entryIndex = member.medicalHistory?.findIndex(h => h.Id === entryId);
+    if (entryIndex === -1) throw new Error('Medical history entry not found');
+    
+    member.medicalHistory.splice(entryIndex, 1);
+    return true;
   }
 };
 

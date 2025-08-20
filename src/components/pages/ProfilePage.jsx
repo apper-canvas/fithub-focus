@@ -14,9 +14,12 @@ import memberService from "@/services/api/memberService";
 const ProfilePage = () => {
 const [member, setMember] = useState(null);
   const [memberStats, setMemberStats] = useState(null);
-  const [bodyMetrics, setBodyMetrics] = useState([]);
+const [bodyMetrics, setBodyMetrics] = useState([]);
+  const [medicalHistory, setMedicalHistory] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [showMetricsForm, setShowMetricsForm] = useState(false);
+  const [showMedicalForm, setShowMedicalForm] = useState(false);
+  const [editingMedicalId, setEditingMedicalId] = useState(null);
   const [formData, setFormData] = useState({});
   const [metricsFormData, setMetricsFormData] = useState({
     weight: '',
@@ -26,29 +29,38 @@ const [member, setMember] = useState(null);
     waterPercentage: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [medicalFormData, setMedicalFormData] = useState({
+    condition: '',
+    medication: '',
+    allergies: '',
+    notes: ''
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingMetrics, setSavingMetrics] = useState(false);
+  const [savingMedical, setSavingMedical] = useState(false);
   const [error, setError] = useState("");
 
 useEffect(() => {
     loadProfileData();
   }, []);
 
-  const loadProfileData = async () => {
+const loadProfileData = async () => {
     try {
       setLoading(true);
       setError("");
       
-      const [memberData, statsData, metricsData] = await Promise.all([
+      const [memberData, statsData, metricsData, medicalData] = await Promise.all([
         memberService.getCurrentMember(),
         memberService.getMemberStats(1),
-        memberService.getBodyMetrics(1)
+        memberService.getBodyMetrics(1),
+        memberService.getMedicalHistory(1)
       ]);
       
       setMember(memberData);
       setMemberStats(statsData);
       setBodyMetrics(metricsData);
+      setMedicalHistory(medicalData);
       setFormData(memberData);
     } catch (err) {
       setError("Failed to load profile data. Please try again.");
@@ -136,7 +148,7 @@ const handleInputChange = (field, value) => {
     setEditMode(false);
   };
 
-  const handleCancelMetrics = () => {
+const handleCancelMetrics = () => {
     setMetricsFormData({
       weight: '',
       bodyFatPercentage: '',
@@ -146,6 +158,80 @@ const handleInputChange = (field, value) => {
       date: new Date().toISOString().split('T')[0]
     });
     setShowMetricsForm(false);
+  };
+
+  const handleMedicalInputChange = (field, value) => {
+    setMedicalFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveMedical = async () => {
+    if (!medicalFormData.condition.trim()) {
+      toast.error("Medical condition is required");
+      return;
+    }
+
+    try {
+      setSavingMedical(true);
+      
+      if (editingMedicalId) {
+        const updated = await memberService.updateMedicalHistory(1, editingMedicalId, medicalFormData);
+        setMedicalHistory(prev => 
+          prev.map(entry => entry.Id === editingMedicalId ? updated : entry)
+        );
+        toast.success("Medical history updated successfully!");
+      } else {
+        const newEntry = await memberService.addMedicalHistory(1, medicalFormData);
+        setMedicalHistory(prev => [...prev, newEntry]);
+        toast.success("Medical history added successfully!");
+      }
+      
+      handleCancelMedical();
+    } catch (err) {
+      toast.error("Failed to save medical history. Please try again.");
+      console.error("Medical save error:", err);
+    } finally {
+      setSavingMedical(false);
+    }
+  };
+
+  const handleCancelMedical = () => {
+    setMedicalFormData({
+      condition: '',
+      medication: '',
+      allergies: '',
+      notes: ''
+    });
+    setShowMedicalForm(false);
+    setEditingMedicalId(null);
+  };
+
+  const handleEditMedical = (entry) => {
+    setMedicalFormData({
+      condition: entry.condition,
+      medication: entry.medication || '',
+      allergies: entry.allergies || '',
+      notes: entry.notes || ''
+    });
+    setEditingMedicalId(entry.Id);
+    setShowMedicalForm(true);
+  };
+
+  const handleDeleteMedical = async (entryId) => {
+    if (!window.confirm("Are you sure you want to delete this medical history entry?")) {
+      return;
+    }
+
+    try {
+      await memberService.deleteMedicalHistory(1, entryId);
+      setMedicalHistory(prev => prev.filter(entry => entry.Id !== entryId));
+      toast.success("Medical history deleted successfully!");
+    } catch (err) {
+      toast.error("Failed to delete medical history. Please try again.");
+      console.error("Medical delete error:", err);
+    }
   };
 
   const getMembershipColor = () => {
@@ -486,6 +572,191 @@ const handleInputChange = (field, value) => {
                 </Badge>
               ))}
             </div>
+          </Card>
+{/* Medical History Management */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                  <ApperIcon name="Heart" className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-display font-bold text-gray-900">Medical History</h2>
+                  <p className="text-gray-600">Manage your medical conditions and medications</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowMedicalForm(true)}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                Add Entry
+              </Button>
+            </div>
+
+            {/* Medical History List */}
+            {medicalHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <ApperIcon name="Heart" className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Medical History</h3>
+                <p className="text-gray-600 mb-4">Add your medical conditions and medications to keep track of your health.</p>
+                <Button
+                  onClick={() => setShowMedicalForm(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                  Add First Entry
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {medicalHistory.map((entry) => (
+                  <div key={entry.Id} className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-2">{entry.condition}</h4>
+                        {entry.medication && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium text-gray-700">Medication: </span>
+                            <span className="text-sm text-gray-600">{entry.medication}</span>
+                          </div>
+                        )}
+                        {entry.allergies && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium text-gray-700">Allergies: </span>
+                            <span className="text-sm text-gray-600">{entry.allergies}</span>
+                          </div>
+                        )}
+                        {entry.notes && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium text-gray-700">Notes: </span>
+                            <span className="text-sm text-gray-600">{entry.notes}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                          <span>Added: {entry.dateAdded}</span>
+                          {entry.lastUpdated !== entry.dateAdded && (
+                            <span>Updated: {entry.lastUpdated}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <Button
+                          onClick={() => handleEditMedical(entry)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <ApperIcon name="Edit2" className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteMedical(entry.Id)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <ApperIcon name="Trash2" className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Medical History Form Modal */}
+            {showMedicalForm && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-display font-bold text-gray-900">
+                      {editingMedicalId ? 'Edit Medical Entry' : 'Add Medical Entry'}
+                    </h3>
+                    <Button
+                      onClick={handleCancelMedical}
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <ApperIcon name="X" className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Medical Condition *
+                      </label>
+                      <Input
+                        placeholder="e.g., Hypertension, Diabetes, Asthma"
+                        value={medicalFormData.condition}
+                        onChange={(e) => handleMedicalInputChange('condition', e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Current Medication
+                      </label>
+                      <Input
+                        placeholder="e.g., Lisinopril 10mg daily"
+                        value={medicalFormData.medication}
+                        onChange={(e) => handleMedicalInputChange('medication', e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Known Allergies
+                      </label>
+                      <Input
+                        placeholder="e.g., Penicillin, Shellfish"
+                        value={medicalFormData.allergies}
+                        onChange={(e) => handleMedicalInputChange('allergies', e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Additional Notes
+                      </label>
+                      <textarea
+                        placeholder="Any additional information about this condition..."
+                        value={medicalFormData.notes}
+                        onChange={(e) => handleMedicalInputChange('notes', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-6 pt-4 border-t">
+                    <Button
+                      onClick={handleCancelMedical}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveMedical}
+                      disabled={savingMedical || !medicalFormData.condition.trim()}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      {savingMedical ? (
+                        <ApperIcon name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <ApperIcon name="Save" className="h-4 w-4 mr-2" />
+                      )}
+                      {editingMedicalId ? 'Update' : 'Save'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Body Metrics Tracking */}

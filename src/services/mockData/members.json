@@ -16,7 +16,17 @@
     "height": 175,
     "fitnessGoal": "Weight Loss & Muscle Building",
     "preferredWorkoutTime": "Morning",
-    "medicalConditions": "None",
+"medicalHistory": [
+      {
+        "Id": 1,
+        "condition": "Hypertension",
+        "medication": "Lisinopril 10mg daily",
+        "allergies": "None",
+        "notes": "Blood pressure well controlled",
+        "dateAdded": "2024-01-15",
+        "lastUpdated": "2024-01-15"
+      }
+    ],
 "streak": 12,
     "totalWorkouts": 89,
     "monthlyVisits": 18,
